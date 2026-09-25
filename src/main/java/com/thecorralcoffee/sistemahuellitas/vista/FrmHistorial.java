@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.thecorralcoffee.sistemahuellitas;
+package com.thecorralcoffee.sistemahuellitas.vista;
 
 /**
  *
@@ -52,7 +52,6 @@ public class FrmHistorial extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(600, 500));
 
         jPanel2.setBackground(new java.awt.Color(40, 125, 110));
 
