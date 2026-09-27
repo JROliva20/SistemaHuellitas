@@ -74,6 +74,44 @@ public class MascotaDAO {
 
         return null;
     }
+    
+    public List<Mascota> buscar(String texto) {
+    List<Mascota> lista = new ArrayList<>();
+
+    String sql = "SELECT id, nombre, especie, raza, fecha_nac, cliente_id "
+               + "FROM mascota WHERE nombre LIKE ?";
+
+    try (Connection cn = Conexion.obtener();
+         PreparedStatement ps = cn.prepareStatement(sql)) {
+
+        ps.setString(1, "%" + texto + "%");
+
+        try (ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Mascota m = new Mascota();
+
+                m.setId(rs.getInt("id"));
+                m.setNombre(rs.getString("nombre"));
+                m.setEspecie(rs.getString("especie"));
+                m.setRaza(rs.getString("raza"));
+
+                if (rs.getDate("fecha_nac") != null) {
+                    m.setFechaNac(rs.getDate("fecha_nac").toLocalDate());
+                }
+
+                m.setClienteId(rs.getInt("cliente_id"));
+
+                lista.add(m);
+            }
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Error al buscar mascotas: " + e.getMessage());
+    }
+
+    return lista;
+}
 
     public boolean insertar(Mascota m) {
         String sql = "INSERT INTO mascota (nombre, especie, raza, fecha_nac, cliente_id) VALUES (?, ?, ?, ?, ?)";

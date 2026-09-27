@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class MovimientoDAO {
     public List<Movimientos> listar() {List<Movimientos> lista = new ArrayList<>();
-        String sql = "SELECT id, tipo, cantidad, fecha, producto_id, usuario_id FROM movimiento";
+        String sql = "SELECT id, tipo, cantidad, fecha, producto_id FROM movimiento";
 
         try (Connection cn = Conexion.obtener();
              PreparedStatement ps = cn.prepareStatement(sql);
@@ -36,7 +36,6 @@ public class MovimientoDAO {
                 }
 
                 m.setProductoId(rs.getInt("producto_id"));
-                m.setUsuarioId(rs.getInt("usuario_id"));
                 lista.add(m);
             }
         } catch (SQLException e) {
@@ -47,7 +46,7 @@ public class MovimientoDAO {
     }
 
     public Movimientos buscarPorId(int id) {
-        String sql = "SELECT id, tipo, cantidad, fecha, producto_id, usuario_id FROM movimiento WHERE id = ?";
+        String sql = "SELECT id, tipo, cantidad, fecha, producto_id FROM movimiento WHERE id = ?";
 
         try (Connection cn = Conexion.obtener();
              PreparedStatement ps = cn.prepareStatement(sql)) {
@@ -66,7 +65,6 @@ public class MovimientoDAO {
                     }
 
                     m.setProductoId(rs.getInt("producto_id"));
-                    m.setUsuarioId(rs.getInt("usuario_id"));
                     return m;
                 }
             }
@@ -78,7 +76,7 @@ public class MovimientoDAO {
     }
 
     public boolean insertar(Movimientos m) {
-        String sql = "INSERT INTO movimiento (tipo, cantidad, producto_id, usuario_id) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO movimiento (tipo, cantidad, producto_id) VALUES (?, ?, ?)";
 
         try (Connection cn = Conexion.obtener();
              PreparedStatement ps = cn.prepareStatement(sql)) {
@@ -86,7 +84,6 @@ public class MovimientoDAO {
             ps.setString(1, m.getTipo());
             ps.setInt(2, m.getCantidad());
             ps.setInt(3, m.getProductoId());
-            ps.setInt(4, m.getUsuarioId());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -96,7 +93,7 @@ public class MovimientoDAO {
     }
 
     public boolean actualizar(Movimientos m) {
-        String sql = "UPDATE movimiento SET tipo = ?, cantidad = ?, producto_id = ?, usuario_id = ? WHERE id = ?";
+        String sql = "UPDATE movimiento SET tipo = ?, cantidad = ?, producto_id = ? WHERE id = ?";
 
         try (Connection cn = Conexion.obtener();
              PreparedStatement ps = cn.prepareStatement(sql)) {
@@ -104,8 +101,7 @@ public class MovimientoDAO {
             ps.setString(1, m.getTipo());
             ps.setInt(2, m.getCantidad());
             ps.setInt(3, m.getProductoId());
-            ps.setInt(4, m.getUsuarioId());
-            ps.setInt(5, m.getId());
+            ps.setInt(4, m.getId());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

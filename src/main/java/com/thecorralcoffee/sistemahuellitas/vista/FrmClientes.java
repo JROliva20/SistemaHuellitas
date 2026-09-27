@@ -6,6 +6,7 @@ package com.thecorralcoffee.sistemahuellitas.vista;
 
 import com.thecorralcoffee.sistemahuellitas.controlador.ClienteController;
 import com.thecorralcoffee.sistemahuellitas.model.Cliente;
+import java.util.List;
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -13,7 +14,7 @@ import javax.swing.table.DefaultTableModel;
  */
 public class FrmClientes extends javax.swing.JFrame {
     private final ClienteController clienteController = new ClienteController();
-
+    
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmClientes.class.getName());
 
     /**
@@ -25,7 +26,7 @@ public class FrmClientes extends javax.swing.JFrame {
         cargarClientes();
     }
     
-    private void cargarClientes() {
+    public void cargarClientes() {
     DefaultTableModel modelo = (DefaultTableModel) tblClientes.getModel();
     modelo.setRowCount(0);
 
@@ -34,7 +35,8 @@ public class FrmClientes extends javax.swing.JFrame {
             cliente.getId(),
             cliente.getNombre(),
             cliente.getTelefono(),
-            cliente.getCorreo()
+            cliente.getDpi(),
+            cliente.getDireccion(),
         });
     }
 }
@@ -56,6 +58,7 @@ public class FrmClientes extends javax.swing.JFrame {
         btnNuevoCliente = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblClientes = new javax.swing.JTable();
+        btnEditar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -80,16 +83,19 @@ public class FrmClientes extends javax.swing.JFrame {
 
         tblClientes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "ID", "Nombre", "Telefono", "Correo"
+                "ID", "Nombre", "Telefono", "DPI", "Dirección"
             }
         ));
         jScrollPane1.setViewportView(tblClientes);
+
+        btnEditar.setText("Editar Cliente");
+        btnEditar.addActionListener(this::btnEditarActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -112,7 +118,10 @@ public class FrmClientes extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnNuevoCliente)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(btnEditar)
+                                .addGap(33, 33, 33)
+                                .addComponent(btnNuevoCliente))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(72, 72, 72))))
         );
@@ -129,7 +138,9 @@ public class FrmClientes extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(36, 36, 36)
-                .addComponent(btnNuevoCliente)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnNuevoCliente)
+                    .addComponent(btnEditar))
                 .addContainerGap(42, Short.MAX_VALUE))
         );
 
@@ -152,13 +163,57 @@ public class FrmClientes extends javax.swing.JFrame {
     }//GEN-LAST:event_txtBuscarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        // TODO add your handling code here:
+        String texto = txtBuscar.getText().trim();
+
+        if (texto.isEmpty()) {
+            cargarClientes();
+        return;
+    }
+
+        List<Cliente> clientes = clienteController.buscarClientes(texto);
+            DefaultTableModel modelo = (DefaultTableModel) tblClientes.getModel();
+            modelo.setRowCount(0);
+
+        for (Cliente c : clientes) {
+            modelo.addRow(new Object[]{
+                c.getId(),
+                c.getNombre(),
+                c.getTelefono(),
+                c.getDpi(),
+                c.getDireccion()
+        });
+    }
+
+        if (clientes.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(
+            this,"No se encontraron clientes."
+        );
+    }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnNuevoClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoClienteActionPerformed
-        // TODO add your handling code here:
+        FrmNuevoCliente frm = new FrmNuevoCliente(this);
+        frm.setVisible(true);
     }//GEN-LAST:event_btnNuevoClienteActionPerformed
 
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+        int fila = tblClientes.getSelectedRow();
+        if (fila == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Selecciona un cliente.");
+        return;
+    }
+    int id = (int) tblClientes.getValueAt(fila, 0);
+        ClienteController controller = new ClienteController();
+        Cliente cliente = controller.buscarCliente(id);
+    
+    if (cliente != null) {
+        FrmNuevoCliente frm = new FrmNuevoCliente(cliente, this);
+        frm.setLocationRelativeTo(this);
+        frm.setVisible(true);
+    }//GEN-LAST:event_btnEditarActionPerformed
+
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -186,6 +241,7 @@ public class FrmClientes extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscar;
+    private javax.swing.JButton btnEditar;
     private javax.swing.JButton btnNuevoCliente;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

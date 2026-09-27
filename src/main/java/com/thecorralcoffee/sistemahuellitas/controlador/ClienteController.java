@@ -38,4 +38,8 @@ public class ClienteController {
     public boolean eliminarCliente(int id) {
         return clienteDAO.eliminar(id);
     }
+    
+    public List<Cliente> buscarClientes(String texto) {
+    return clienteDAO.buscar(texto);
+    }
 }

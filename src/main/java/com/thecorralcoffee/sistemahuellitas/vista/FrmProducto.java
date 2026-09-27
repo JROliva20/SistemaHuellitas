@@ -4,11 +4,18 @@
  */
 package com.thecorralcoffee.sistemahuellitas.vista;
 
+import com.thecorralcoffee.sistemahuellitas.controlador.ProductoController;
+import com.thecorralcoffee.sistemahuellitas.model.Producto;
+import java.time.LocalDate;
+
 /**
  *
  * @author oliva
  */
 public class FrmProducto extends javax.swing.JFrame {
+    private final ProductoController controller = new ProductoController();
+    private Producto productoEditar;
+    private FrmInventario frmInventario;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmProducto.class.getName());
 
@@ -17,7 +24,34 @@ public class FrmProducto extends javax.swing.JFrame {
      */
     public FrmProducto() {
         initComponents();
+        setLocationRelativeTo(null);
     }
+    private void limpiarCampos() {
+    txtCodigo.setText("");
+    txtNombre.setText("");
+    txtCategoria.setText("");
+    txtPrecio.setText("");
+    txtStock.setText("");
+    txtFecha.setText("");
+    }
+    public FrmProducto(Producto producto, FrmInventario frmInventario) {
+    initComponents();
+
+    this.productoEditar = producto;
+    this.frmInventario = frmInventario;
+
+    txtCodigo.setText(producto.getCodigo());
+    txtNombre.setText(producto.getNombre());
+    txtCategoria.setText(producto.getCategoria());
+    txtPrecio.setText(producto.getPrecio().toString());
+    txtStock.setText(String.valueOf(producto.getStockMin()));
+
+    if (producto.getVence() != null) {
+        txtFecha.setText(producto.getVence().toString());
+    }
+
+    setLocationRelativeTo(frmInventario);
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -32,17 +66,21 @@ public class FrmProducto extends javax.swing.JFrame {
         lbProductos = new javax.swing.JLabel();
         lbNombre = new javax.swing.JLabel();
         lbCategoria = new javax.swing.JLabel();
-        lbCantidad = new javax.swing.JLabel();
         lbPrecio = new javax.swing.JLabel();
+        lbFecha = new javax.swing.JLabel();
         txtNombre = new javax.swing.JTextField();
         txtCategoria = new javax.swing.JTextField();
-        txtCantidad = new javax.swing.JTextField();
         txtPrecio = new javax.swing.JTextField();
+        txtFecha = new javax.swing.JTextField();
         btnGuardar = new javax.swing.JButton();
-        btnCancelar = new javax.swing.JButton();
         btnRegresar = new javax.swing.JButton();
+        txtCodigo = new javax.swing.JTextField();
+        lbCodigo = new javax.swing.JLabel();
+        lbStok = new javax.swing.JLabel();
+        txtStock = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(500, 500));
 
         jPanel1.setBackground(new java.awt.Color(40, 125, 110));
 
@@ -58,57 +96,71 @@ public class FrmProducto extends javax.swing.JFrame {
         lbCategoria.setForeground(new java.awt.Color(255, 255, 255));
         lbCategoria.setText("Categoria:");
 
-        lbCantidad.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lbCantidad.setForeground(new java.awt.Color(255, 255, 255));
-        lbCantidad.setText("Cantidad:");
-
         lbPrecio.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lbPrecio.setForeground(new java.awt.Color(255, 255, 255));
         lbPrecio.setText("Precio:");
 
+        lbFecha.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lbFecha.setForeground(new java.awt.Color(255, 255, 255));
+        lbFecha.setText("Fecha de vencimiento:");
+
         btnGuardar.setText("Guardar");
         btnGuardar.addActionListener(this::btnGuardarActionPerformed);
 
-        btnCancelar.setText("Cancelar");
-        btnCancelar.addActionListener(this::btnCancelarActionPerformed);
-
         btnRegresar.setText("Volver a inventario");
+        btnRegresar.addActionListener(this::btnRegresarActionPerformed);
+
+        lbCodigo.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lbCodigo.setForeground(new java.awt.Color(255, 255, 255));
+        lbCodigo.setText("Código:");
+
+        lbStok.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lbStok.setForeground(new java.awt.Color(255, 255, 255));
+        lbStok.setText("Stock min:");
+
+        txtStock.addActionListener(this::txtStockActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(123, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(123, 123, 123)
+                        .addComponent(btnGuardar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
+                        .addComponent(btnRegresar))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lbProductos)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addComponent(btnGuardar)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnCancelar))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(lbFecha)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(lbNombre)
+                                    .addComponent(lbCodigo)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(txtCodigo))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                    .addComponent(lbPrecio)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(txtPrecio))
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                                     .addComponent(lbCategoria)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(txtCategoria))
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(lbCantidad)
+                                    .addComponent(lbNombre)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtCantidad))
+                                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(lbPrecio)
+                                    .addComponent(lbStok)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(116, 116, 116))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnRegresar)
-                        .addGap(25, 25, 25))))
+                                    .addComponent(txtStock)))
+                            .addComponent(lbProductos, javax.swing.GroupLayout.Alignment.TRAILING))))
+                .addGap(116, 116, 116))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -116,6 +168,10 @@ public class FrmProducto extends javax.swing.JFrame {
                 .addGap(20, 20, 20)
                 .addComponent(lbProductos)
                 .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbCodigo)
+                    .addComponent(txtCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lbNombre)
                     .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -125,19 +181,21 @@ public class FrmProducto extends javax.swing.JFrame {
                     .addComponent(txtCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbCantidad)
-                    .addComponent(txtCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lbPrecio)
                     .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(69, 69, 69)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbStok)
+                    .addComponent(txtStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(3, 3, 3)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbFecha)
+                    .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnGuardar)
-                    .addComponent(btnCancelar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 147, Short.MAX_VALUE)
-                .addComponent(btnRegresar)
-                .addGap(37, 37, 37))
+                    .addComponent(btnRegresar))
+                .addContainerGap(197, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -155,12 +213,176 @@ public class FrmProducto extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        // TODO add your handling code here:
+        try {
+        String codigo = txtCodigo.getText().trim();
+        String nombre = txtNombre.getText().trim();
+        String categoria = txtCategoria.getText().trim();
+        String precioTexto = txtPrecio.getText().trim();
+        String stockTexto = txtStock.getText().trim();
+        String fechaTexto = txtFecha.getText().trim();
+
+        //validar campos obligatorios
+        if (codigo.isEmpty() || nombre.isEmpty() || precioTexto.isEmpty()
+                || stockTexto.isEmpty()) {
+
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,"Completa los campos obligatorios.","Aviso",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        
+        if (!codigo.matches("^[A-Z]{3}-[0-9]{1,6}$")) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,"El código debe tener el formato AAA-######.\n"
+                    + "Ejemplo: AAA-0123456",
+                    "Código inválido",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            txtCodigo.requestFocus();
+            return;
+        }
+        
+        if (nombre.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,"El nombre del producto es obligatorio.",
+                    "Campo requerido",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            txtNombre.requestFocus();
+            return;
+        }
+        
+         if (categoria.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,"La categoría es obligatoria.",
+                    "Campo requerido",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            txtCategoria.requestFocus();
+            return;
+        }
+         
+        if (!precioTexto.matches("^\\d+(\\.\\d{1,2})?$")) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "El precio debe ser un número positivo con máximo 2 decimales.\n"
+                    + "Ejemplo: 25.50",
+                    "Precio inválido",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            txtPrecio.requestFocus();
+            return;
+        }
+        java.math.BigDecimal precio = new java.math.BigDecimal(precioTexto);
+        if (precio.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "El precio debe ser mayor que 0.",
+                    "Precio inválido",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            txtPrecio.requestFocus();
+            return;
+        }
+        
+        if (!stockTexto.matches("^\\d{1,6}$")) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,"El stock mínimo debe ser un número entero entre 0 y 999999.",
+                    "Stock inválido",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            txtStock.requestFocus();
+            return;
+        }
+        
+        //convertir stock mínimo
+        int stockMin = Integer.parseInt(stockTexto);
+
+        //crear producto
+        Producto producto = new Producto();
+
+        producto.setCodigo(codigo);
+        producto.setNombre(nombre);
+        producto.setCategoria(categoria);
+        producto.setPrecio(precio);
+        producto.setStockMin(stockMin);
+
+        //fecha opcional
+        if (!fechaTexto.isEmpty()) {
+            producto.setVence(LocalDate.parse(fechaTexto));
+        } else {
+            producto.setVence(null);
+        }
+
+        //guardar
+        boolean resultado;
+
+        if (productoEditar != null) {
+        producto.setId(productoEditar.getId());
+        resultado = controller.actualizarProducto(producto);
+        } else {
+        resultado = controller.guardarProducto(producto);
+        }
+
+        if (resultado) {
+            javax.swing.JOptionPane.showMessageDialog(
+        this,
+        productoEditar != null
+                ? "Producto actualizado correctamente."
+                : "Producto registrado correctamente."
+        );
+
+            if (productoEditar != null) {
+            frmInventario.dispose();
+            frmInventario = new FrmInventario();
+            frmInventario.setVisible(true);
+            dispose();
+                } else {
+                limpiarCampos();
+            }
+
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,"No se pudo guardar el producto.","Error",
+                    javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+        }
+
+    } catch (NumberFormatException e) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,"Precio y Stock mínimo deben ser valores numéricos.","Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+        );
+
+    } catch (java.time.format.DateTimeParseException e) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,"La fecha debe tener el formato AAAA-MM-DD.","Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+        );
+
+    } catch (Exception e) {
+        javax.swing.JOptionPane.showMessageDialog(
+                this,"Error al guardar: " + e.getMessage(),"Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+        );
+    }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
-    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+    private void txtStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtStockActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnCancelarActionPerformed
+    }//GEN-LAST:event_txtStockActionPerformed
+
+    private void btnRegresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegresarActionPerformed
+        if (frmInventario != null) {
+        frmInventario.setVisible(true);
+            } else {
+            FrmInventario frm = new FrmInventario();
+            frm.setVisible(true);
+        }
+
+dispose();
+    }//GEN-LAST:event_btnRegresarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -188,18 +410,21 @@ public class FrmProducto extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnRegresar;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JLabel lbCantidad;
     private javax.swing.JLabel lbCategoria;
+    private javax.swing.JLabel lbCodigo;
+    private javax.swing.JLabel lbFecha;
     private javax.swing.JLabel lbNombre;
     private javax.swing.JLabel lbPrecio;
     private javax.swing.JLabel lbProductos;
-    private javax.swing.JTextField txtCantidad;
+    private javax.swing.JLabel lbStok;
     private javax.swing.JTextField txtCategoria;
+    private javax.swing.JTextField txtCodigo;
+    private javax.swing.JTextField txtFecha;
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtPrecio;
+    private javax.swing.JTextField txtStock;
     // End of variables declaration//GEN-END:variables
 }

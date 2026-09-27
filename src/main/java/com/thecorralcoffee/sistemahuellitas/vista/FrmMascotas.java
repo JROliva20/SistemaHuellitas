@@ -4,11 +4,21 @@
  */
 package com.thecorralcoffee.sistemahuellitas.vista;
 
+import com.thecorralcoffee.sistemahuellitas.controlador.ClienteController;
+import com.thecorralcoffee.sistemahuellitas.controlador.MascotaController;
+import com.thecorralcoffee.sistemahuellitas.model.Cliente;
+import com.thecorralcoffee.sistemahuellitas.model.Mascota;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author oliva
  */
 public class FrmMascotas extends javax.swing.JFrame {
+    private final MascotaController mascotaController;
+    private final ClienteController clienteController;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmMascotas.class.getName());
 
@@ -17,8 +27,39 @@ public class FrmMascotas extends javax.swing.JFrame {
      */
     public FrmMascotas() {
         initComponents();
+        mascotaController = new MascotaController();
+        clienteController = new ClienteController();
+        cargarMascotas();
+        setLocationRelativeTo(null);
     }
+    
+    private void cargarMascotas() {
+    List<Mascota> mascotas = mascotaController.listarMascotas();
+    DefaultTableModel modelo = (DefaultTableModel) tblMascotas.getModel();
 
+    modelo.setRowCount(0);
+
+    for (Mascota m : mascotas) {
+
+        int edad = 0;
+
+        if (m.getFechaNac() != null) {
+            edad = java.time.Period.between(
+                m.getFechaNac(),
+                java.time.LocalDate.now()
+            ).getYears();
+        }
+
+        modelo.addRow(new Object[]{
+            m.getId(),
+            m.getNombre(),
+            m.getEspecie(),
+            m.getRaza(),
+            edad,
+            clienteController.buscarCliente(m.getClienteId()).getNombre()
+        });
+    }
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -42,7 +83,9 @@ public class FrmMascotas extends javax.swing.JFrame {
         btnBuscar1 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblMascotas = new javax.swing.JTable();
-        btnNuevoCliente1 = new javax.swing.JButton();
+        btnNuevaMascota = new javax.swing.JButton();
+        btnEditar = new javax.swing.JButton();
+        btnEliminar = new javax.swing.JButton();
 
         lbClientes.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
         lbClientes.setForeground(new java.awt.Color(255, 255, 255));
@@ -108,10 +151,20 @@ public class FrmMascotas extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(tblMascotas);
 
-        btnNuevoCliente1.setBackground(new java.awt.Color(40, 125, 110));
-        btnNuevoCliente1.setForeground(new java.awt.Color(255, 255, 255));
-        btnNuevoCliente1.setText("Nuevo Cliente");
-        btnNuevoCliente1.addActionListener(this::btnNuevoCliente1ActionPerformed);
+        btnNuevaMascota.setBackground(new java.awt.Color(40, 125, 110));
+        btnNuevaMascota.setForeground(new java.awt.Color(255, 255, 255));
+        btnNuevaMascota.setText("Nueva Mascota");
+        btnNuevaMascota.addActionListener(this::btnNuevaMascotaActionPerformed);
+
+        btnEditar.setBackground(new java.awt.Color(40, 125, 110));
+        btnEditar.setForeground(new java.awt.Color(255, 255, 255));
+        btnEditar.setText("Editar");
+        btnEditar.addActionListener(this::btnEditarActionPerformed);
+
+        btnEliminar.setBackground(new java.awt.Color(40, 125, 110));
+        btnEliminar.setForeground(new java.awt.Color(255, 255, 255));
+        btnEliminar.setText("Eliminar");
+        btnEliminar.addActionListener(this::btnEliminarActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -133,11 +186,15 @@ public class FrmMascotas extends javax.swing.JFrame {
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnNuevoCliente1)
+                        .addComponent(btnEliminar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnEditar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnNuevaMascota)
                         .addGap(72, 72, 72))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 512, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(52, 52, 52))))
+                        .addGap(42, 42, 42))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -152,7 +209,10 @@ public class FrmMascotas extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(36, 36, 36)
-                .addComponent(btnNuevoCliente1)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnNuevaMascota)
+                    .addComponent(btnEditar)
+                    .addComponent(btnEliminar))
                 .addContainerGap(37, Short.MAX_VALUE))
         );
 
@@ -187,12 +247,75 @@ public class FrmMascotas extends javax.swing.JFrame {
     }//GEN-LAST:event_txtBuscar1ActionPerformed
 
     private void btnBuscar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscar1ActionPerformed
-        // TODO add your handling code here:
+        String texto = txtBuscar.getText().trim();
+        
+        if (texto.isEmpty()) {
+            cargarMascotas();
+            return;
+    }
+
+    List<Mascota> mascotas = mascotaController.buscarMascotas(texto);
+    DefaultTableModel modelo = (DefaultTableModel) tblMascotas.getModel();
+
+    modelo.setRowCount(0);
+
+    for (Mascota m : mascotas) {
+        Cliente cliente = clienteController.buscarCliente(m.getClienteId());
+        String propietario = cliente != null ? cliente.getNombre() : "Sin propietario";
+
+        modelo.addRow(new Object[]{
+            m.getId(),
+            m.getNombre(),
+            m.getEspecie(),
+            m.getRaza(),
+            m.getFechaNac(),
+            propietario
+        });
+    }
+
+    if (mascotas.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+                "No se encontraron mascotas con ese nombre.");
+    }
     }//GEN-LAST:event_btnBuscar1ActionPerformed
 
-    private void btnNuevoCliente1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoCliente1ActionPerformed
+    private void btnNuevaMascotaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaMascotaActionPerformed
+        FrmNuevaMascota frm = new FrmNuevaMascota();
+        frm.setVisible(true);
+    }//GEN-LAST:event_btnNuevaMascotaActionPerformed
+
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnNuevoCliente1ActionPerformed
+    }//GEN-LAST:event_btnEditarActionPerformed
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+                                         
+    int fila = tblMascotas.getSelectedRow();
+
+    if (fila == -1) {
+        JOptionPane.showMessageDialog(this, "Selecciona una mascota.");
+        return;
+    }
+
+    int id = (int) tblMascotas.getValueAt(fila, 0);
+
+    int confirmar = JOptionPane.showConfirmDialog(
+            this,
+            "¿Deseas eliminar esta mascota?",
+            "Confirmar eliminación",
+            JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirmar == JOptionPane.YES_OPTION) {
+        if (mascotaController.eliminarMascota(id)) {
+            JOptionPane.showMessageDialog(this, "Mascota eliminada correctamente.");
+            cargarMascotas();
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo eliminar la mascota.");
+        }
+    }
+
+    }//GEN-LAST:event_btnEliminarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -222,8 +345,10 @@ public class FrmMascotas extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnBuscar1;
+    private javax.swing.JButton btnEditar;
+    private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnNuevaMascota;
     private javax.swing.JButton btnNuevoCliente;
-    private javax.swing.JButton btnNuevoCliente1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;

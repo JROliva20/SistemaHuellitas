@@ -4,11 +4,27 @@
  */
 package com.thecorralcoffee.sistemahuellitas.vista;
 
+import com.thecorralcoffee.sistemahuellitas.controlador.CitaController;
+import com.thecorralcoffee.sistemahuellitas.controlador.MascotaController;
+import com.thecorralcoffee.sistemahuellitas.controlador.UsuarioController;
+import com.thecorralcoffee.sistemahuellitas.model.Cita;
+import com.thecorralcoffee.sistemahuellitas.model.Mascota;
+import com.thecorralcoffee.sistemahuellitas.model.Usuario;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author oliva
  */
 public class FrmCitas extends javax.swing.JFrame {
+    private final CitaController citaController;
+    private final MascotaController mascotaController;
+    private final UsuarioController usuarioController;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmCitas.class.getName());
 
@@ -17,7 +33,55 @@ public class FrmCitas extends javax.swing.JFrame {
      */
     public FrmCitas() {
         initComponents();
+        citaController = new CitaController();
+        mascotaController = new MascotaController();
+        usuarioController = new UsuarioController();
+        cargarVeterinarios();
+        cargarCitas();
+        limpiarCampos();
+        setLocationRelativeTo(null);
     }
+    
+    private void cargarVeterinarios() {
+    cbmVeterinario.removeAllItems();
+    List<Usuario> usuarios = usuarioController.listarUsuarios();
+    for (Usuario u : usuarios) {
+        if ("VETERINARIO".equalsIgnoreCase(u.getRol())) {
+            cbmVeterinario.addItem(u.getId() + " - " + u.getNombre());
+        }
+    }
+}
+    
+    private void cargarCitas() {
+    List<Cita> citas = citaController.listarCitas();
+    DefaultTableModel modelo = (DefaultTableModel) tblCitas.getModel();
+    modelo.setRowCount(0);
+    for (Cita c : citas) {
+        Mascota mascota = mascotaController.buscarMascota(c.getMascotaId());
+        Usuario veterinario = usuarioController.buscarUsuario(c.getVetId());
+        String nombreMascota = mascota != null ? mascota.getNombre() : "";
+        String nombreVeterinario = veterinario != null ? veterinario.getNombre() : "";
+        modelo.addRow(new Object[]{
+            c.getId(),
+            c.getFecha(),
+            c.getHora(),
+            nombreMascota,
+            nombreVeterinario
+        });
+    }
+}
+    private void limpiarCampos() {
+    txtMascota.setText("");
+    txtFecha.setText("");
+    txtHora.setText("");
+    txtMotivo.setText("");
+
+    if (cbmVeterinario.getItemCount() > 0) {
+        cbmVeterinario.setSelectedIndex(0);
+    }
+
+    txtMascota.requestFocus();
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -35,16 +99,17 @@ public class FrmCitas extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         txtMascota = new javax.swing.JTextField();
-        cbxVeterinario = new javax.swing.JComboBox<>();
+        cbmVeterinario = new javax.swing.JComboBox<>();
         txtFecha = new javax.swing.JTextField();
-        cbxHora = new javax.swing.JComboBox<>();
         jLabel6 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        txaMotivo = new javax.swing.JTextArea();
+        txtMotivo = new javax.swing.JTextArea();
         btnAgendar = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblCitas = new javax.swing.JTable();
+        txtHora = new javax.swing.JTextField();
+        btnActualizar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -71,22 +136,21 @@ public class FrmCitas extends javax.swing.JFrame {
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Hora:");
 
-        cbxVeterinario.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        cbxVeterinario.addActionListener(this::cbxVeterinarioActionPerformed);
+        cbmVeterinario.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbmVeterinario.addActionListener(this::cbmVeterinarioActionPerformed);
 
         txtFecha.addActionListener(this::txtFechaActionPerformed);
-
-        cbxHora.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Motivo:");
 
-        txaMotivo.setColumns(20);
-        txaMotivo.setRows(5);
-        jScrollPane1.setViewportView(txaMotivo);
+        txtMotivo.setColumns(20);
+        txtMotivo.setRows(5);
+        jScrollPane1.setViewportView(txtMotivo);
 
         btnAgendar.setText("Agendar Cita");
+        btnAgendar.addActionListener(this::btnAgendarActionPerformed);
 
         btnCancelar.setText("Cancelar Cita");
         btnCancelar.addActionListener(this::btnCancelarActionPerformed);
@@ -102,7 +166,15 @@ public class FrmCitas extends javax.swing.JFrame {
                 "ID", "Fecha", "Hora", "Mascota", "Veterinario"
             }
         ));
+        tblCitas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblCitasMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(tblCitas);
+
+        btnActualizar.setText("Actualizar Cita");
+        btnActualizar.addActionListener(this::btnActualizarActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -112,37 +184,42 @@ public class FrmCitas extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(156, 156, 156)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addComponent(btnAgendar)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnCancelar))
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel6)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel2)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txtMascota, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel3)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cbxVeterinario, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel4)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addComponent(jLabel1))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbxHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtHora, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(69, 69, 69)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(btnAgendar)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addComponent(jLabel2)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(txtMascota, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(jLabel1)
+                                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                                    .addComponent(jLabel3)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(cbmVeterinario, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                                    .addComponent(jLabel4)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addComponent(jLabel6)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(btnActualizar)
+                                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(btnCancelar))))
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(79, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -157,7 +234,7 @@ public class FrmCitas extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(cbxVeterinario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cbmVeterinario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
@@ -165,7 +242,7 @@ public class FrmCitas extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(cbxHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6)
@@ -173,7 +250,8 @@ public class FrmCitas extends javax.swing.JFrame {
                 .addGap(44, 44, 44)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAgendar)
-                    .addComponent(btnCancelar))
+                    .addComponent(btnCancelar)
+                    .addComponent(btnActualizar))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(37, Short.MAX_VALUE))
@@ -193,17 +271,302 @@ public class FrmCitas extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cbxVeterinarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxVeterinarioActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbxVeterinarioActionPerformed
-
     private void txtFechaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFechaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtFechaActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
-        // TODO add your handling code here:
+        int fila = tblCitas.getSelectedRow();
+
+    if (fila == -1) {
+        JOptionPane.showMessageDialog(this, "Selecciona una cita.");
+        return;
+    }
+
+    int id = (int) tblCitas.getValueAt(fila, 0);
+
+    int confirmar = JOptionPane.showConfirmDialog(
+        this,
+        "¿Deseas cancelar esta cita?",
+        "Confirmar cancelación",
+        JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirmar == JOptionPane.YES_OPTION) {
+        if (citaController.eliminarCita(id)) {
+            JOptionPane.showMessageDialog(this, "Cita cancelada correctamente.");
+            cargarCitas();
+            limpiarCampos();
+        } else {
+            JOptionPane.showMessageDialog(
+                this,
+                "No se pudo cancelar la cita.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
     }//GEN-LAST:event_btnCancelarActionPerformed
+
+    private void cbmVeterinarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbmVeterinarioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbmVeterinarioActionPerformed
+
+    private void btnAgendarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgendarActionPerformed
+         String mascotaTexto = txtMascota.getText().trim();
+    String fechaTexto = txtFecha.getText().trim();
+    String horaTexto = txtHora.getText().trim();
+    String motivo = txtMotivo.getText().trim();
+
+    if (mascotaTexto.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Ingresa el nombre de la mascota.");
+        txtMascota.requestFocus();
+        return;
+    }
+
+    List<Mascota> mascotas = mascotaController.buscarMascotas(mascotaTexto);
+
+    if (mascotas.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "No se encontró una mascota con ese nombre.");
+        txtMascota.requestFocus();
+        return;
+    }
+
+    if (mascotas.size() > 1) {
+        JOptionPane.showMessageDialog(this, "Hay varias mascotas con ese nombre. Especifica mejor.");
+        txtMascota.requestFocus();
+        return;
+    }
+
+    Mascota mascota = mascotas.get(0);
+    int mascotaId = mascota.getId();
+
+    if (cbmVeterinario.getSelectedItem() == null) {
+        JOptionPane.showMessageDialog(this, "Selecciona un veterinario.");
+        return;
+    }
+
+    String veterinarioTexto = cbmVeterinario.getSelectedItem().toString();
+
+    int vetId;
+
+    try {
+        vetId = Integer.parseInt(veterinarioTexto.split(" - ")[0]);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Selecciona un veterinario válido.");
+        return;
+    }
+
+    if (fechaTexto.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Ingresa la fecha.");
+        txtFecha.requestFocus();
+        return;
+    }
+
+    LocalDate fecha;
+
+    try {
+        fecha = LocalDate.parse(fechaTexto);
+    } catch (DateTimeParseException e) {
+        JOptionPane.showMessageDialog(this, "La fecha debe tener el formato AAAA-MM-DD.");
+        txtFecha.requestFocus();
+        return;
+    }
+
+    if (horaTexto.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Ingresa la hora.");
+        txtHora.requestFocus();
+        return;
+    }
+
+    LocalTime hora;
+
+    try {
+        hora = LocalTime.parse(horaTexto);
+    } catch (DateTimeParseException e) {
+        JOptionPane.showMessageDialog(this, "La hora debe tener el formato HH:MM.");
+        txtHora.requestFocus();
+        return;
+    }
+
+    if (motivo.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Ingresa el motivo de la cita.");
+        txtMotivo.requestFocus();
+        return;
+    }
+
+    if (motivo.length() < 3) {
+        JOptionPane.showMessageDialog(this, "El motivo es demasiado corto.");
+        txtMotivo.requestFocus();
+        return;
+    }
+
+    Cita cita = new Cita(
+        fecha,
+        hora,
+        motivo,
+        "",
+        mascotaId,
+        vetId
+    );
+
+    if (citaController.insertarCita(cita)) {
+        JOptionPane.showMessageDialog(this, "Cita agendada correctamente.");
+        cargarCitas();
+        limpiarCampos();
+    } else {
+        JOptionPane.showMessageDialog(
+            this,
+            "No se pudo agendar la cita.",
+            "Error",
+            JOptionPane.ERROR_MESSAGE
+        );
+    }
+    }//GEN-LAST:event_btnAgendarActionPerformed
+
+    private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
+        int fila = tblCitas.getSelectedRow();
+
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona una cita para actualizar.");
+            return;
+        }
+
+        int id = (int) tblCitas.getValueAt(fila, 0);
+
+        String mascotaTexto = txtMascota.getText().trim();
+        String fechaTexto = txtFecha.getText().trim();
+        String horaTexto = txtHora.getText().trim();
+        String motivo = txtMotivo.getText().trim();
+
+        if (mascotaTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingresa el ID de la mascota.");
+            txtMascota.requestFocus();
+        return;
+        }
+
+        int mascotaId;
+
+        try {
+            mascotaId = Integer.parseInt(mascotaTexto);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El ID de la mascota debe ser un número.");
+            txtMascota.requestFocus();
+            return;
+        }
+
+Mascota mascota = mascotaController.buscarMascota(mascotaId);
+
+if (mascota == null) {
+    JOptionPane.showMessageDialog(this, "La mascota no existe.");
+    txtMascota.requestFocus();
+    return;
+}
+
+if (cbmVeterinario.getSelectedItem() == null) {
+    JOptionPane.showMessageDialog(this, "Selecciona un veterinario.");
+    return;
+}
+
+String veterinarioTexto = cbmVeterinario.getSelectedItem().toString();
+int vetId = Integer.parseInt(veterinarioTexto.split(" - ")[0]);
+
+if (fechaTexto.isEmpty()) {
+    JOptionPane.showMessageDialog(this, "Ingresa la fecha.");
+    txtFecha.requestFocus();
+    return;
+}
+
+LocalDate fecha;
+
+try {
+    fecha = LocalDate.parse(fechaTexto);
+} catch (DateTimeParseException e) {
+    JOptionPane.showMessageDialog(this, "La fecha debe tener el formato AAAA-MM-DD.");
+    txtFecha.requestFocus();
+    return;
+}
+
+if (horaTexto.isEmpty()) {
+    JOptionPane.showMessageDialog(this, "Ingresa la hora.");
+    txtHora.requestFocus();
+    return;
+}
+
+LocalTime hora;
+
+try {
+    hora = LocalTime.parse(horaTexto);
+} catch (DateTimeParseException e) {
+    JOptionPane.showMessageDialog(this, "La hora debe tener el formato HH:MM.");
+    txtHora.requestFocus();
+    return;
+}
+
+if (motivo.isEmpty()) {
+    JOptionPane.showMessageDialog(this, "Ingresa el motivo de la cita.");
+    txtMotivo.requestFocus();
+    return;
+}
+
+if (motivo.length() < 3) {
+    JOptionPane.showMessageDialog(this, "El motivo es demasiado corto.");
+    txtMotivo.requestFocus();
+    return;
+}
+
+Cita cita = new Cita(
+    id,
+    fecha,
+    hora,
+    motivo,
+    "",
+    mascotaId,
+    vetId
+);
+
+if (citaController.actualizarCita(cita)) {
+    JOptionPane.showMessageDialog(this, "Cita actualizada correctamente.");
+    cargarCitas();
+    limpiarCampos();
+    tblCitas.clearSelection();
+} else {
+    JOptionPane.showMessageDialog(
+        this,
+        "No se pudo actualizar la cita.",
+        "Error",
+        JOptionPane.ERROR_MESSAGE
+    );
+}
+    }//GEN-LAST:event_btnActualizarActionPerformed
+
+    private void tblCitasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCitasMouseClicked
+        int fila = tblCitas.getSelectedRow();
+
+        if (fila == -1) {
+        return;
+        }
+
+        int id = (int) tblCitas.getValueAt(fila, 0);
+
+        Cita cita = citaController.buscarCita(id);
+
+        if (cita != null) {
+            txtMascota.setText(String.valueOf(cita.getMascotaId()));
+            txtFecha.setText(cita.getFecha().toString());
+            txtHora.setText(cita.getHora().toString());
+            txtMotivo.setText(cita.getMotivo());
+
+        for (int i = 0; i < cbmVeterinario.getItemCount(); i++) {
+            String item = cbmVeterinario.getItemAt(i);
+
+        if (item.startsWith(cita.getVetId() + " - ")) {
+            cbmVeterinario.setSelectedIndex(i);
+            break;
+        }
+    }
+}
+    }//GEN-LAST:event_tblCitasMouseClicked
 
     /**
      * @param args the command line arguments
@@ -231,10 +594,10 @@ public class FrmCitas extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActualizar;
     private javax.swing.JButton btnAgendar;
     private javax.swing.JButton btnCancelar;
-    private javax.swing.JComboBox<String> cbxHora;
-    private javax.swing.JComboBox<String> cbxVeterinario;
+    private javax.swing.JComboBox<String> cbmVeterinario;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -245,8 +608,9 @@ public class FrmCitas extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tblCitas;
-    private javax.swing.JTextArea txaMotivo;
     private javax.swing.JTextField txtFecha;
+    private javax.swing.JTextField txtHora;
     private javax.swing.JTextField txtMascota;
+    private javax.swing.JTextArea txtMotivo;
     // End of variables declaration//GEN-END:variables
 }

@@ -76,6 +76,50 @@ public class ProductoDAO {
 
         return null;
     }
+    
+    public List<Producto> buscar(String texto) {
+
+    List<Producto> lista = new ArrayList<>();
+
+    String sql = "SELECT id, codigo, nombre, categoria, precio, stock_min, vence "
+               + "FROM producto "
+               + "WHERE codigo LIKE ? OR nombre LIKE ?";
+
+    try (Connection cn = Conexion.obtener();
+         PreparedStatement ps = cn.prepareStatement(sql)) {
+
+        String busqueda = "%" + texto + "%";
+
+        ps.setString(1, busqueda);
+        ps.setString(2, busqueda);
+
+        try (ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Producto p = new Producto();
+
+                p.setId(rs.getInt("id"));
+                p.setCodigo(rs.getString("codigo"));
+                p.setNombre(rs.getString("nombre"));
+                p.setCategoria(rs.getString("categoria"));
+                p.setPrecio(rs.getBigDecimal("precio"));
+                p.setStockMin(rs.getInt("stock_min"));
+
+                if (rs.getDate("vence") != null) {
+                    p.setVence(rs.getDate("vence").toLocalDate());
+                }
+
+                lista.add(p);
+            }
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Error al buscar productos: " + e.getMessage());
+    }
+
+    return lista;
+}
 
     public boolean insertar(Producto p) {
         String sql = "INSERT INTO producto (codigo, nombre, categoria, precio, stock_min, vence) VALUES (?, ?, ?, ?, ?, ?)";

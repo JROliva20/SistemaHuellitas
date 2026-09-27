@@ -16,7 +16,7 @@ public class Movimientos {
     private int cantidad;
     private LocalDateTime fecha;
     private int productoId;
-    private int usuarioId;
+  
 
     public Movimientos() {
     }
@@ -27,7 +27,6 @@ public class Movimientos {
         this.cantidad = cantidad;
         this.fecha = fecha;
         this.productoId = productoId;
-        this.usuarioId = usuarioId;
     }
 
     public Movimientos(String tipo, int cantidad, LocalDateTime fecha, int productoId, int usuarioId) {
@@ -35,7 +34,6 @@ public class Movimientos {
         this.cantidad = cantidad;
         this.fecha = fecha;
         this.productoId = productoId;
-        this.usuarioId = usuarioId;
     }
 
     public int getId() {
@@ -77,16 +75,4 @@ public class Movimientos {
     public void setProductoId(int productoId) {
         this.productoId = productoId;
     }
-
-    public int getUsuarioId() {
-        return usuarioId;
-    }
-
-    public void setUsuarioId(int usuarioId) {
-        this.usuarioId = usuarioId;
-    }
-    
-    
-
-    
 }

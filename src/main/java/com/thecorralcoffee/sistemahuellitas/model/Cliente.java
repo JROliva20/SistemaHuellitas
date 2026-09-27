@@ -9,25 +9,28 @@ package com.thecorralcoffee.sistemahuellitas.model;
  * @author oliva
  */
 public class Cliente {
-    private int id;
-    private String nombre;
-    private String telefono;
-    private String correo;
+   private int id;
+   private String nombre;
+   private String dpi;
+   private String telefono;
+   private String direccion;
 
     public Cliente() {
     }
 
-    public Cliente(int id, String nombre, String telefono, String correo) {
+    public Cliente(int id, String nombre, String dpi, String telefono, String direccion) {
         this.id = id;
         this.nombre = nombre;
+        this.dpi = dpi;
         this.telefono = telefono;
-        this.correo = correo;
+        this.direccion = direccion;
     }
 
-    public Cliente(String nombre, String telefono, String correo) {
+    public Cliente(String nombre, String dpi, String telefono, String direccion) {
         this.nombre = nombre;
+        this.dpi = dpi;
         this.telefono = telefono;
-        this.correo = correo;
+        this.direccion = direccion;
     }
 
     public int getId() {
@@ -46,6 +49,14 @@ public class Cliente {
         this.nombre = nombre;
     }
 
+    public String getDpi() {
+        return dpi;
+    }
+
+    public void setDpi(String dpi) {
+        this.dpi = dpi;
+    }
+
     public String getTelefono() {
         return telefono;
     }
@@ -54,13 +65,11 @@ public class Cliente {
         this.telefono = telefono;
     }
 
-    public String getCorreo() {
-        return correo;
+    public String getDireccion() {
+        return direccion;
     }
 
-    public void setCorreo(String correo) {
-        this.correo = correo;
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
-    
-    
 }

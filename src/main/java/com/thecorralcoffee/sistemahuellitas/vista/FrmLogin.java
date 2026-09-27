@@ -4,11 +4,16 @@
  */
 package com.thecorralcoffee.sistemahuellitas.vista;
 
+import com.thecorralcoffee.sistemahuellitas.controlador.UsuarioController;
+import com.thecorralcoffee.sistemahuellitas.model.Usuario;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author oliva
  */
 public class FrmLogin extends javax.swing.JFrame {
+    private final UsuarioController usuarioController;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmLogin.class.getName());
 
@@ -17,6 +22,8 @@ public class FrmLogin extends javax.swing.JFrame {
      */
     public FrmLogin() {
         initComponents();
+        usuarioController = new UsuarioController();
+        setLocationRelativeTo(null);
     }
 
     /**
@@ -38,6 +45,7 @@ public class FrmLogin extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         txpClave = new javax.swing.JPasswordField();
         btnIniciarSesion = new javax.swing.JButton();
+        btnNuevoUsuario = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -95,6 +103,12 @@ public class FrmLogin extends javax.swing.JFrame {
         btnIniciarSesion.setText("Iniciar Sesión");
         btnIniciarSesion.addActionListener(this::btnIniciarSesionActionPerformed);
 
+        btnNuevoUsuario.setBackground(new java.awt.Color(40, 125, 110));
+        btnNuevoUsuario.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnNuevoUsuario.setForeground(new java.awt.Color(255, 255, 255));
+        btnNuevoUsuario.setText("Nuevo Usuario");
+        btnNuevoUsuario.addActionListener(this::btnNuevoUsuarioActionPerformed);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -118,7 +132,9 @@ public class FrmLogin extends javax.swing.JFrame {
                         .addComponent(jLabel3)
                         .addGap(109, 109, 109))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(btnIniciarSesion)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(btnNuevoUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnIniciarSesion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(158, 158, 158))))
         );
         jPanel2Layout.setVerticalGroup(
@@ -136,7 +152,9 @@ public class FrmLogin extends javax.swing.JFrame {
                     .addComponent(txpClave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(93, 93, 93)
                 .addComponent(btnIniciarSesion)
-                .addContainerGap(155, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnNuevoUsuario)
+                .addContainerGap(116, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -162,8 +180,48 @@ public class FrmLogin extends javax.swing.JFrame {
     }//GEN-LAST:event_txtUsuarioActionPerformed
 
     private void btnIniciarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarSesionActionPerformed
-        // TODO add your handling code here:
+        String usuario = txtUsuario.getText().trim();
+    String clave = new String(txpClave.getPassword());
+
+    if (usuario.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Ingresa tu usuario.");
+        txtUsuario.requestFocus();
+        return;
+    }
+
+    if (clave.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Ingresa tu contraseña.");
+        txpClave.requestFocus();
+        return;
+    }
+
+    Usuario usuarioLogueado = usuarioController.login(usuario, clave);
+
+    if (usuarioLogueado != null) {
+        JOptionPane.showMessageDialog(this,
+                "Bienvenido, " + usuarioLogueado.getNombre());
+
+        FrmMenu menu = new FrmMenu();
+        menu.setLocationRelativeTo(null);
+        menu.setVisible(true);
+        dispose();
+
+    } else {
+        JOptionPane.showMessageDialog(this,
+                "Usuario o contraseña incorrectos.",
+                "Error de inicio de sesión",
+                JOptionPane.ERROR_MESSAGE);
+
+        txpClave.setText("");
+        txpClave.requestFocus();
+    }
     }//GEN-LAST:event_btnIniciarSesionActionPerformed
+
+    private void btnNuevoUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoUsuarioActionPerformed
+        FrmRegistroUsuario frm = new FrmRegistroUsuario();
+        frm.setVisible(true);
+        dispose();
+    }//GEN-LAST:event_btnNuevoUsuarioActionPerformed
 
     /**
      * @param args the command line arguments
@@ -192,6 +250,7 @@ public class FrmLogin extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnIniciarSesion;
+    private javax.swing.JButton btnNuevoUsuario;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

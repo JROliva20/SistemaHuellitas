@@ -4,11 +4,17 @@
  */
 package com.thecorralcoffee.sistemahuellitas.vista;
 
+import com.thecorralcoffee.sistemahuellitas.controlador.ProductoController;
+import com.thecorralcoffee.sistemahuellitas.model.Producto;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author oliva
  */
 public class FrmInventario extends javax.swing.JFrame {
+    private final ProductoController productoController;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmInventario.class.getName());
 
@@ -17,6 +23,25 @@ public class FrmInventario extends javax.swing.JFrame {
      */
     public FrmInventario() {
         initComponents();
+        productoController = new ProductoController();
+        cargarProductos();
+        setLocationRelativeTo(null);
+    }
+    
+    private void cargarProductos() {
+    List<Producto> productos = productoController.listarProductos();
+    DefaultTableModel modelo = (DefaultTableModel) tblInventario.getModel();
+    modelo.setRowCount(0);
+    for (Producto p : productos) {
+        modelo.addRow(new Object[]{
+            p.getId(),
+            p.getNombre(),
+            p.getCategoria(),
+            p.getStockMin(),
+            p.getVence(),
+            p.getPrecio()
+            });
+       }
     }
 
     /**
@@ -36,6 +61,8 @@ public class FrmInventario extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblInventario = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
+        btnEditar = new javax.swing.JButton();
+        btnActualizar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -57,10 +84,7 @@ public class FrmInventario extends javax.swing.JFrame {
 
         tblInventario.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+
             },
             new String [] {
                 "ID", "Producto", "Categoria", "Stock", "Fecha de Vencimiento", "Precio"
@@ -71,6 +95,12 @@ public class FrmInventario extends javax.swing.JFrame {
         jButton1.setText("Nuevo Producto");
         jButton1.addActionListener(this::jButton1ActionPerformed);
 
+        btnEditar.setText("Editar Producto");
+        btnEditar.addActionListener(this::btnEditarActionPerformed);
+
+        btnActualizar.setText("Actualizar");
+        btnActualizar.addActionListener(this::btnActualizarActionPerformed);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -78,7 +108,12 @@ public class FrmInventario extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(0, 57, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnEditar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnActualizar))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 746, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(97, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -108,7 +143,10 @@ public class FrmInventario extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 241, Short.MAX_VALUE)
-                .addComponent(jButton1)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(btnEditar)
+                    .addComponent(btnActualizar))
                 .addGap(103, 103, 103))
         );
 
@@ -131,12 +169,57 @@ public class FrmInventario extends javax.swing.JFrame {
     }//GEN-LAST:event_txtBuscarProductoActionPerformed
 
     private void btnBuscarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarProductoActionPerformed
-        // TODO add your handling code here:
+        String texto = txtBuscarProducto.getText().trim();
+        if (texto.isEmpty()) {
+            cargarProductos();
+        return;
+        }
+        List<Producto> productos = productoController.buscarProductos(texto);
+        DefaultTableModel modelo = (DefaultTableModel) tblInventario.getModel();
+            modelo.setRowCount(0);
+        for (Producto p : productos) {
+        modelo.addRow(new Object[]{
+            p.getId(),
+            p.getNombre(),
+            p.getCategoria(),
+            p.getStockMin(),
+            p.getVence(),
+            p.getPrecio()
+        });
+    }
     }//GEN-LAST:event_btnBuscarProductoActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        FrmProducto frm = new FrmProducto();
+        frm.setVisible(true);
+        dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+        int fila = tblInventario.getSelectedRow();
+
+    if (fila == -1) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Selecciona un producto.");
+        return;
+    }
+
+    int id = (int) tblInventario.getValueAt(fila, 0);
+
+    Producto producto = productoController.buscarProducto(id);
+
+    if (producto != null) {
+        FrmProducto frm = new FrmProducto(producto, this);
+        frm.setLocationRelativeTo(this);
+        frm.setVisible(true);
+        dispose();
+    }
+    }//GEN-LAST:event_btnEditarActionPerformed
+
+    private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
+        FrmMovimiento frm = new FrmMovimiento();
+        frm.setVisible(true);
+        dispose();
+    }//GEN-LAST:event_btnActualizarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -164,7 +247,9 @@ public class FrmInventario extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActualizar;
     private javax.swing.JButton btnBuscarProducto;
+    private javax.swing.JButton btnEditar;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;

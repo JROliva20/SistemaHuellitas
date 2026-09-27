@@ -126,4 +126,31 @@ public class UsuarioDAO {
             return false;
         }
     }
+     
+    public Usuario login(String usuario, String clave) {
+    String sql = "SELECT id, nombre, usuario, clave_hash, rol FROM usuario WHERE usuario = ? AND clave_hash = ?";
+    try (Connection cn = Conexion.obtener();
+         PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, usuario);
+            ps.setString(2, clave);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                Usuario u = new Usuario();
+
+                u.setId(rs.getInt("id"));
+                u.setNombre(rs.getString("nombre"));
+                u.setUsuario(rs.getString("usuario"));
+                u.setClaveHash(rs.getString("clave_hash"));
+                u.setRol(rs.getString("rol"));
+
+                return u;
+            }
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Error al iniciar sesión: " + e.getMessage());
+    }
+
+    return null;
+} 
 }

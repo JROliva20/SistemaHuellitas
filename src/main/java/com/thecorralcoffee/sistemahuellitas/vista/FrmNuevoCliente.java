@@ -4,6 +4,9 @@
  */
 package com.thecorralcoffee.sistemahuellitas.vista;
 
+import com.thecorralcoffee.sistemahuellitas.controlador.ClienteController;
+import com.thecorralcoffee.sistemahuellitas.model.Cliente;
+
 /**
  *
  * @author oliva
@@ -11,13 +14,35 @@ package com.thecorralcoffee.sistemahuellitas.vista;
 public class FrmNuevoCliente extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FrmNuevoCliente.class.getName());
+    private Cliente cliente;
+    private FrmClientes frmClientes;
+    private final ClienteController controller = new ClienteController();
 
     /**
      * Creates new form FrmNuevoCliente
      */
     public FrmNuevoCliente() {
         initComponents();
+        setLocationRelativeTo(null);
     }
+
+    public FrmNuevoCliente(FrmClientes frmClientes) {
+        initComponents();
+        this.frmClientes = frmClientes;
+        setLocationRelativeTo(null);
+    } 
+
+    public FrmNuevoCliente(Cliente cliente, FrmClientes frmClientes) {
+        initComponents();
+        this.cliente = cliente;
+        this.frmClientes = frmClientes;
+        txtNombre.setText(cliente.getNombre());
+        txtDPI.setText(cliente.getDpi());
+        txtTelefono.setText(cliente.getTelefono());
+        txtDireccion.setText(cliente.getDireccion());
+        lbNuevoCliente.setText("Editar huellita cliente");
+        setLocationRelativeTo(null);
+} 
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -32,15 +57,16 @@ public class FrmNuevoCliente extends javax.swing.JFrame {
         lbNuevoCliente = new javax.swing.JLabel();
         lbNombre = new javax.swing.JLabel();
         lbTelefono = new javax.swing.JLabel();
-        lbCorreo = new javax.swing.JLabel();
+        lbDPI = new javax.swing.JLabel();
         txtNombre = new javax.swing.JTextField();
         txtTelefono = new javax.swing.JTextField();
-        txtCorreo = new javax.swing.JTextField();
+        txtDPI = new javax.swing.JTextField();
         btnGuardar = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
-        btnEditar = new javax.swing.JButton();
+        lbDireccion = new javax.swing.JLabel();
+        txtDireccion = new javax.swing.JTextField();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(600, 500));
 
         jPanel1.setBackground(new java.awt.Color(40, 125, 110));
@@ -57,15 +83,15 @@ public class FrmNuevoCliente extends javax.swing.JFrame {
         lbTelefono.setForeground(new java.awt.Color(255, 255, 255));
         lbTelefono.setText("Telefono:");
 
-        lbCorreo.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        lbCorreo.setForeground(new java.awt.Color(255, 255, 255));
-        lbCorreo.setText("Correo:");
+        lbDPI.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lbDPI.setForeground(new java.awt.Color(255, 255, 255));
+        lbDPI.setText("DPI:");
 
         txtNombre.addActionListener(this::txtNombreActionPerformed);
 
         txtTelefono.addActionListener(this::txtTelefonoActionPerformed);
 
-        txtCorreo.addActionListener(this::txtCorreoActionPerformed);
+        txtDPI.addActionListener(this::txtDPIActionPerformed);
 
         btnGuardar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnGuardar.setText("GUARDAR");
@@ -75,40 +101,40 @@ public class FrmNuevoCliente extends javax.swing.JFrame {
         btnCancel.setText("CANCELAR");
         btnCancel.addActionListener(this::btnCancelActionPerformed);
 
-        btnEditar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnEditar.setText("ACTUALIZAR");
-        btnEditar.addActionListener(this::btnEditarActionPerformed);
+        lbDireccion.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lbDireccion.setForeground(new java.awt.Color(255, 255, 255));
+        lbDireccion.setText("Dirección:");
+
+        txtDireccion.addActionListener(this::txtDireccionActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(96, Short.MAX_VALUE)
+                .addContainerGap(105, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(91, 91, 91))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addComponent(lbNuevoCliente)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(lbDireccion)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(txtDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(lbTelefono)
-                                    .addComponent(lbCorreo)
-                                    .addComponent(lbNombre)
-                                    .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(txtCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(31, 31, 31)
-                                        .addComponent(btnEditar))))
-                            .addComponent(lbNuevoCliente))
-                        .addGap(140, 140, 140))))
+                                    .addComponent(lbDPI)
+                                    .addComponent(lbNombre))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtDPI, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                .addGap(140, 140, 140))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -125,14 +151,17 @@ public class FrmNuevoCliente extends javax.swing.JFrame {
                     .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lbCorreo)
-                    .addComponent(txtCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(61, 61, 61)
+                    .addComponent(lbDPI)
+                    .addComponent(txtDPI, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbDireccion)
+                    .addComponent(txtDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(38, 38, 38)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(186, Short.MAX_VALUE))
+                    .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(159, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -157,21 +186,103 @@ public class FrmNuevoCliente extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtTelefonoActionPerformed
 
-    private void txtCorreoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCorreoActionPerformed
+    private void txtDPIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDPIActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtCorreoActionPerformed
+    }//GEN-LAST:event_txtDPIActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        // TODO add your handling code here:
+         
+        String nombre = txtNombre.getText().trim();
+        String dpi = txtDPI.getText().trim();
+        String telefono = txtTelefono.getText().trim();
+        String direccion = txtDireccion.getText().trim();
+        
+        //validaciones
+        if (nombre.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Ingresa el nombre del cliente.");
+            txtNombre.requestFocus();
+        return;
+        }
+        if (dpi.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Ingresa el DPI del cliente.");
+            txtDPI.requestFocus();
+        return;
+        }
+        if (!dpi.matches("\\d+")) {
+            javax.swing.JOptionPane.showMessageDialog(this, "El DPI solo debe contener números.");
+            txtDPI.requestFocus();
+        return;
+        }
+        if (dpi.length() != 13) {
+            javax.swing.JOptionPane.showMessageDialog(this, "El DPI debe tener exactamente 13 dígitos.");
+            txtDPI.requestFocus();
+        return;
+        }
+        if (telefono.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Ingresa el número de teléfono.");
+            txtTelefono.requestFocus();
+        return;
+        }
+        if (!telefono.matches("\\d+")) {
+            javax.swing.JOptionPane.showMessageDialog(this, "El teléfono solo debe contener números.");
+            txtTelefono.requestFocus();
+        return;
+        }
+        if (telefono.length() != 8) {
+            javax.swing.JOptionPane.showMessageDialog(this, "El teléfono debe tener exactamente 8 dígitos.");
+            txtTelefono.requestFocus();
+        return;
+        } 
+        if (direccion.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Ingresa la dirección del cliente.");
+            txtDireccion.requestFocus();
+        return;
+        }
+
+        if (nombre.isEmpty() || dpi.isEmpty() || telefono.isEmpty() || direccion.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Completa todos los campos.");
+            return;
+        }
+
+        boolean resultado;
+
+        if (cliente == null) {
+            Cliente nuevo = new Cliente(nombre, dpi, telefono, direccion);
+            resultado = controller.guardarCliente(nuevo);
+        } else {
+            cliente.setNombre(nombre);
+            cliente.setDpi(dpi);
+            cliente.setTelefono(telefono);
+            cliente.setDireccion(direccion);
+        resultado = controller.actualizarCliente(cliente);
+    }
+
+    if (resultado) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+                cliente == null ? "Cliente registrado correctamente." : "Cliente actualizado correctamente.");
+
+        if (frmClientes != null) {
+            frmClientes.cargarClientes();
+        }
+        
+        dispose();
+    } else {
+        javax.swing.JOptionPane.showMessageDialog(this,
+                "No se pudo guardar el cliente.",
+                "Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        // TODO add your handling code here:
+        FrmClientes frmClientes = new FrmClientes();
+        frmClientes.setVisible(true);
+        dispose();
     }//GEN-LAST:event_btnCancelActionPerformed
 
-    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+    private void txtDireccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDireccionActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnEditarActionPerformed
+    }//GEN-LAST:event_txtDireccionActionPerformed
 
     /**
      * @param args the command line arguments
@@ -200,14 +311,15 @@ public class FrmNuevoCliente extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
-    private javax.swing.JButton btnEditar;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JLabel lbCorreo;
+    private javax.swing.JLabel lbDPI;
+    private javax.swing.JLabel lbDireccion;
     private javax.swing.JLabel lbNombre;
     private javax.swing.JLabel lbNuevoCliente;
     private javax.swing.JLabel lbTelefono;
-    private javax.swing.JTextField txtCorreo;
+    private javax.swing.JTextField txtDPI;
+    private javax.swing.JTextField txtDireccion;
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtTelefono;
     // End of variables declaration//GEN-END:variables
